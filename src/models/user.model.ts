@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import {Entity, model, property} from '@loopback/repository';
 
 @model()
@@ -32,6 +33,10 @@ export class User extends Entity {
   })
   role_id?: number;
 
+  @property({
+    type: 'number',
+  })
+  productId?: number;
 
   constructor(data?: Partial<User>) {
     super(data);
