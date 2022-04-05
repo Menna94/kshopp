@@ -9,6 +9,11 @@ import {
 } from '@loopback/rest-explorer';
 import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
+import {
+  PasswordHashingBindings,
+  TokenBindings,
+  UserServiceBindings,
+} from './keys';
 import {MySequence} from './sequence';
 import {BcryptHasher} from './services/hash.password';
 import {JWTService} from './services/jwt-service';
@@ -49,9 +54,9 @@ export class ApplicationStarter extends BootMixin(
     };
   }
   setupBinding(): void {
-    this.bind('service.hasher').toClass(BcryptHasher);
-    this.bind('services.user.service').toClass(MyUserService);
-    this.bind('services.jwt').toClass(JWTService);
+    this.bind(PasswordHashingBindings.PASS_HASHER).toClass(BcryptHasher);
+    this.bind(UserServiceBindings.USER_SERVICE).toClass(MyUserService);
+    this.bind(TokenBindings.TOKEN_SERVICE).toClass(JWTService);
     this.bind('rounds').to(10);
   }
 }

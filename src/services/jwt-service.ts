@@ -20,4 +20,12 @@ export class JWTService {
 
     return token;
   }
+
+  //Token verification
+  async verifyToken(token: string): Promise<UserProfile> {
+    return Promise.resolve({
+      [securityId]: '1',
+      name: 'kk',
+    });
+  }
 }

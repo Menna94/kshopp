@@ -2,6 +2,7 @@ import {UserService} from '@loopback/authentication';
 import {inject} from '@loopback/core';
 import {HttpErrors} from '@loopback/rest';
 import {securityId, UserProfile} from '@loopback/security';
+import {PasswordHashingBindings} from '../keys';
 import {User} from '../models';
 import {Credentials, UserRepository} from '../repositories/user.repository';
 import {BcryptHasher} from './hash.password';
@@ -9,7 +10,8 @@ import {BcryptHasher} from './hash.password';
 export class MyUserService implements UserService<User, Credentials> {
   constructor(
     public userRepository: UserRepository,
-    @inject('service.hasher') public passwordHasher: BcryptHasher,
+    @inject(PasswordHashingBindings.PASS_HASHER)
+    public passwordHasher: BcryptHasher,
   ) {}
 
   async verifyCredentials(credentials: Credentials): Promise<User> {

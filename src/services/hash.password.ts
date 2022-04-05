@@ -1,7 +1,7 @@
 import {inject} from '@loopback/core';
 import * as bcrypt from 'bcryptjs';
 
-interface PasswordHasher<T = string> {
+export interface PasswordHasher<T = string> {
   hashPassword(password: T): Promise<T>;
 
   matchPass(enteredPass: T, password: T): Promise<boolean>;

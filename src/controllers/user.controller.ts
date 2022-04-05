@@ -19,6 +19,11 @@ import {
   requestBody,
   response,
 } from '@loopback/rest';
+import {
+  PasswordHashingBindings,
+  TokenBindings,
+  UserServiceBindings,
+} from '../keys';
 import {User} from '../models';
 import {Credentials, UserRepository} from '../repositories/user.repository';
 import {BcryptHasher} from '../services/hash.password';
@@ -34,11 +39,11 @@ export class UserController {
     @repository(UserRepository)
     public userRepository: UserRepository,
 
-    @inject('service.hasher') public passHash: BcryptHasher,
-    // @service(MyUserService) public userService: MyUserService,
-    @inject('services.user.service') public userService: MyUserService,
+    @inject(PasswordHashingBindings.PASS_HASHER) public passHash: BcryptHasher,
 
-    @inject('services.jwt') public jwt: JWTService,
+    @inject(UserServiceBindings.USER_SERVICE) public userService: MyUserService,
+
+    @inject(TokenBindings.TOKEN_SERVICE) public jwt: JWTService,
   ) {}
 
   @post('/users/signup')
