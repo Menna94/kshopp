@@ -36,15 +36,15 @@ export class AuthenticationController {
   //@access => protected => @admin/user
   @get('/auth/current-user')
   @authenticate('jwt')
+  @response(200, {
+    description: 'User Me',
+    content: {'application/json': {schema: getModelSchemaRef(User)}},
+  })
   async me(
     @inject(AuthenticationBindings.CURRENT_USER) currentUser: UserProfile,
   ): Promise<UserProfile> {
     return Promise.resolve(currentUser);
   }
-  @response(200, {
-    description: 'User Me',
-    content: {'application/json': {schema: getModelSchemaRef(User)}},
-  })
 
   //==   Signup   ==//
   //@access => public

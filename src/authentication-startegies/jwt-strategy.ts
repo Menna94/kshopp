@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/prefer-optional-chain */
 import {AuthenticationStrategy} from '@loopback/authentication';
 import {inject} from '@loopback/core';
 import {HttpErrors, Request} from '@loopback/rest';
@@ -21,17 +22,19 @@ export class JWTStrategy implements AuthenticationStrategy {
   }
 
   extractCredentials(request: Request): string {
+    let token: string;
     //make sure there are Bearer request headers to continue accessing the route
     if (
-      !request.headers.authorization ||
-      !request.headers.authorization.startsWith('Brearer ')
+      request.headers.authorization &&
+      request.headers.authorization.startsWith('Bearer ')
     ) {
+      token = request.headers.authorization.split(' ')[1];
+      console.log(token);
+    } else {
       throw new HttpErrors.Unauthorized(
-        'Sorry, You Are Not Authorized To Access This Route!',
+        'Sorry, You Are Not Authorized To Access This Route!!!',
       );
     }
-    const token = request.headers.authorization.split(' ')[1];
-
     return token;
   }
 }
