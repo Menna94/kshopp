@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import {inject} from '@loopback/core';
+import {authenticate, AuthenticationBindings} from '@loopback/authentication';
+import {inject} from '@loopback/context';
 import {
   Count,
   CountSchema,
@@ -19,6 +20,7 @@ import {
   requestBody,
   response,
 } from '@loopback/rest';
+import {UserProfile} from '@loopback/security';
 import {
   PasswordHashingBindings,
   TokenBindings,
@@ -46,6 +48,17 @@ export class UserController {
     @inject(TokenBindings.TOKEN_SERVICE) public jwt: JWTService,
   ) {}
 
+  @get('/users/me')
+  @authenticate('jwt')
+  async me(
+    @inject(AuthenticationBindings.CURRENT_USER) currentUser: UserProfile,
+  ): Promise<UserProfile> {
+    return Promise.resolve(currentUser);
+  }
+  @response(200, {
+    description: 'User Me',
+    content: {'application/json': {schema: getModelSchemaRef(User)}},
+  })
   @post('/users/signup')
   @response(200, {
     description: 'User model instance',

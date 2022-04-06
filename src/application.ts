@@ -1,4 +1,8 @@
 require('dotenv').config();
+import {
+  AuthenticationComponent,
+  registerAuthenticationStrategy,
+} from '@loopback/authentication';
 import {BootMixin} from '@loopback/boot';
 import {ApplicationConfig} from '@loopback/core';
 import {RepositoryMixin} from '@loopback/repository';
@@ -9,6 +13,7 @@ import {
 } from '@loopback/rest-explorer';
 import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
+import {JWTStrategy} from './authentication-startegies/jwt-strategy';
 import {
   PasswordHashingBindings,
   TokenBindings,
@@ -41,6 +46,9 @@ export class ApplicationStarter extends BootMixin(
       path: '/explorer',
     });
     this.component(RestExplorerComponent);
+
+    this.component(AuthenticationComponent);
+    registerAuthenticationStrategy(this, JWTStrategy);
 
     this.projectRoot = __dirname;
     // Customize @loopback/boot Booter Conventions here

@@ -23,9 +23,25 @@ export class JWTService {
 
   //Token verification
   async verifyToken(token: string): Promise<UserProfile> {
-    return Promise.resolve({
-      [securityId]: '1',
-      name: 'kk',
-    });
+    if (!token) {
+      throw new HttpErrors.Unauthorized(
+        'Error in Verifying Token: Token is Null',
+      );
+    }
+    let userProfile: UserProfile;
+    try {
+      const decode = await JWT.verify(token, 'secret');
+      if (!decode) {
+        throw new HttpErrors.Unauthorized(
+          'Sorry, Not Authorized to Access This Route!',
+        );
+      }
+      userProfile = Object.assign({id: decode.id, name: decode.name});
+    } catch (err) {
+      throw new HttpErrors.Unauthorized(
+        `Error Verifying Token! ${err.message}`,
+      );
+    }
+    return userProfile;
   }
 }
