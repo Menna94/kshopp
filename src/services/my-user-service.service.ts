@@ -1,12 +1,13 @@
 import {UserService} from '@loopback/authentication';
-import {inject} from '@loopback/core';
+import {/* inject, */ BindingScope, inject, injectable} from '@loopback/core';
 import {HttpErrors} from '@loopback/rest';
 import {securityId, UserProfile} from '@loopback/security';
 import {PasswordHashingBindings} from '../keys';
 import {User} from '../models';
-import {Credentials, UserRepository} from '../repositories/user.repository';
+import {Credentials, UserRepository} from '../repositories';
 import {BcryptHasher} from './hash.password';
 
+@injectable({scope: BindingScope.TRANSIENT})
 export class MyUserService implements UserService<User, Credentials> {
   constructor(
     public userRepository: UserRepository,

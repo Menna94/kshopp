@@ -14,15 +14,10 @@ import {
 import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
 import {JWTStrategy} from './authentication-startegies/jwt-strategy';
-import {
-  PasswordHashingBindings,
-  TokenBindings,
-  UserServiceBindings,
-} from './keys';
+import {PasswordHashingBindings, TokenBindings} from './keys';
 import {MySequence} from './sequence';
 import {BcryptHasher} from './services/hash.password';
 import {JWTService} from './services/jwt-service';
-import {MyUserService} from './services/user-service';
 
 export {ApplicationConfig};
 
@@ -64,7 +59,6 @@ export class ApplicationStarter extends BootMixin(
 
   setupBinding(): void {
     this.bind(PasswordHashingBindings.PASS_HASHER).toClass(BcryptHasher);
-    this.bind(UserServiceBindings.USER_SERVICE).toClass(MyUserService);
     this.bind(TokenBindings.TOKEN_SERVICE).toClass(JWTService);
     this.bind('rounds').to(10);
   }

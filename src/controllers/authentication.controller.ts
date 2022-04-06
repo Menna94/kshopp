@@ -2,7 +2,7 @@
 // Uncomment these imports to begin using these cool features!
 
 import {authenticate, AuthenticationBindings} from '@loopback/authentication';
-import {inject} from '@loopback/core';
+import {inject, service} from '@loopback/core';
 import {repository} from '@loopback/repository';
 import {
   get,
@@ -12,16 +12,12 @@ import {
   response,
 } from '@loopback/rest';
 import {UserProfile} from '@loopback/security';
-import {
-  PasswordHashingBindings,
-  TokenBindings,
-  UserServiceBindings,
-} from '../keys';
+import {PasswordHashingBindings, TokenBindings} from '../keys';
 import {User} from '../models';
 import {Credentials, UserRepository} from '../repositories';
+import {MyUserService} from '../services';
 import {BcryptHasher} from '../services/hash.password';
 import {JWTService} from '../services/jwt-service';
-import {MyUserService} from '../services/user-service';
 import {validateCreds} from '../services/validator';
 import {CredentialsRequestBody} from './specs/user.controller.specs';
 
@@ -32,7 +28,7 @@ export class AuthenticationController {
     @repository(UserRepository)
     public userRepository: UserRepository,
     @inject(PasswordHashingBindings.PASS_HASHER) public passHash: BcryptHasher,
-    @inject(UserServiceBindings.USER_SERVICE) public userService: MyUserService,
+    @service(MyUserService) public userService: MyUserService,
     @inject(TokenBindings.TOKEN_SERVICE) public jwt: JWTService,
   ) {}
 
