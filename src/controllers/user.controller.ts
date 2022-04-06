@@ -1,20 +1,12 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import {authenticate} from '@loopback/authentication';
 import {inject} from '@loopback/context';
-import {
-  Count,
-  CountSchema,
-  Filter,
-  FilterExcludingWhere,
-  repository,
-  Where,
-} from '@loopback/repository';
+import {Filter, FilterExcludingWhere, repository} from '@loopback/repository';
 import {
   del,
   get,
   getModelSchemaRef,
   param,
-  patch,
   put,
   requestBody,
   response,
@@ -35,6 +27,7 @@ export class UserController {
   //==   Fetch All Users   ==//
   //@access => protected => @admin
   @get('/users')
+  @authenticate('jwt')
   @response(200, {
     description: 'Array of User model instances',
     content: {
@@ -46,40 +39,14 @@ export class UserController {
       },
     },
   })
-  @authenticate('jwt')
   async find(@param.filter(User) filter?: Filter<User>): Promise<User[]> {
     return this.userRepository.find(filter);
   }
 
-  @get('/users/count')
-  @response(200, {
-    description: 'User model count',
-    content: {'application/json': {schema: CountSchema}},
-  })
-  async count(@param.where(User) where?: Where<User>): Promise<Count> {
-    return this.userRepository.count(where);
-  }
-
-  @patch('/users')
-  @response(200, {
-    description: 'User PATCH success count',
-    content: {'application/json': {schema: CountSchema}},
-  })
-  async updateAll(
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(User, {partial: true}),
-        },
-      },
-    })
-    user: User,
-    @param.where(User) where?: Where<User>,
-  ): Promise<Count> {
-    return this.userRepository.updateAll(user, where);
-  }
-
+  //==   Fetch User   ==//
+  //@access => protected => @admin/@user
   @get('/users/{id}')
+  @authenticate('jwt')
   @response(200, {
     description: 'User model instance',
     content: {
@@ -95,25 +62,10 @@ export class UserController {
     return this.userRepository.findById(id, filter);
   }
 
-  @patch('/users/{id}')
-  @response(204, {
-    description: 'User PATCH success',
-  })
-  async updateById(
-    @param.path.number('id') id: number,
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(User, {partial: true}),
-        },
-      },
-    })
-    user: User,
-  ): Promise<void> {
-    await this.userRepository.updateById(id, user);
-  }
-
+  //==   Update User   ==//
+  //@access => protected => @admin/@user
   @put('/users/{id}')
+  @authenticate('jwt')
   @response(204, {
     description: 'User PUT success',
   })
@@ -124,7 +76,10 @@ export class UserController {
     await this.userRepository.replaceById(id, user);
   }
 
+  //==   Delete User   ==//
+  //@access => protected => @admin
   @del('/users/{id}')
+  @authenticate('jwt')
   @response(204, {
     description: 'User DELETE success',
   })
