@@ -61,6 +61,7 @@ export class ApplicationStarter extends BootMixin(
       },
     };
   }
+
   setupBinding(): void {
     this.bind(PasswordHashingBindings.PASS_HASHER).toClass(BcryptHasher);
     this.bind(UserServiceBindings.USER_SERVICE).toClass(MyUserService);

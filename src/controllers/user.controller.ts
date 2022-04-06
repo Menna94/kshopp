@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import {authenticate, AuthenticationBindings} from '@loopback/authentication';
+import {authenticate} from '@loopback/authentication';
 import {inject} from '@loopback/context';
 import {
   Count,
@@ -15,26 +15,14 @@ import {
   getModelSchemaRef,
   param,
   patch,
-  post,
   put,
   requestBody,
   response,
 } from '@loopback/rest';
-import {UserProfile} from '@loopback/security';
-import {
-  PasswordHashingBindings,
-  TokenBindings,
-  UserServiceBindings,
-} from '../keys';
+import {PasswordHashingBindings} from '../keys';
 import {User} from '../models';
-import {Credentials, UserRepository} from '../repositories/user.repository';
+import {UserRepository} from '../repositories/user.repository';
 import {BcryptHasher} from '../services/hash.password';
-import {JWTService} from '../services/jwt-service';
-import {MyUserService} from '../services/user-service';
-import {validateCreds} from '../services/validator';
-import {CredentialsRequestBody} from './specs/user.controller.specs';
-
-const _ = require('lodash');
 
 export class UserController {
   constructor(
@@ -42,86 +30,10 @@ export class UserController {
     public userRepository: UserRepository,
 
     @inject(PasswordHashingBindings.PASS_HASHER) public passHash: BcryptHasher,
-
-    @inject(UserServiceBindings.USER_SERVICE) public userService: MyUserService,
-
-    @inject(TokenBindings.TOKEN_SERVICE) public jwt: JWTService,
   ) {}
 
-  @get('/users/me')
-  @authenticate('jwt')
-  async me(
-    @inject(AuthenticationBindings.CURRENT_USER) currentUser: UserProfile,
-  ): Promise<UserProfile> {
-    return Promise.resolve(currentUser);
-  }
-  @response(200, {
-    description: 'User Me',
-    content: {'application/json': {schema: getModelSchemaRef(User)}},
-  })
-  @post('/users/signup')
-  @response(200, {
-    description: 'User model instance',
-    content: {'application/json': {schema: getModelSchemaRef(User)}},
-  })
-  async signup(@requestBody() user: User): Promise<User> {
-    //validate user inputs
-    validateCreds(_.pick(user, ['email', 'password']));
-
-    //hash password with bcrypt
-    user.password = await this.passHash.hashPassword(user.password);
-
-    //create a new user
-    let newUser = await this.userRepository.create(user);
-
-    //return the user created but eliminate password
-    newUser = _.pick(newUser, ['name', 'email']);
-    return newUser;
-  }
-
-  @post('/users/login')
-  @response(200, {
-    description: 'Token',
-    content: {
-      'application/json': {
-        schema: {
-          type: 'object',
-          properties: {
-            token: {
-              type: 'string',
-            },
-          },
-        },
-      },
-    },
-  })
-  async login(
-    @requestBody(CredentialsRequestBody) credentials: Credentials,
-  ): Promise<{token: string}> {
-    //make sure user exists && password is valid
-    const user = await this.userService.verifyCredentials(credentials);
-    console.log(user);
-
-    const userProfile = this.userService.convertToUserProfile(user);
-    console.log(userProfile);
-
-    //generate a json web token
-    const token = await this.jwt.generateToken(userProfile);
-    console.log(process.env.TEST);
-
-    //return token
-    return Promise.resolve({token});
-  }
-
-  @get('/users/count')
-  @response(200, {
-    description: 'User model count',
-    content: {'application/json': {schema: CountSchema}},
-  })
-  async count(@param.where(User) where?: Where<User>): Promise<Count> {
-    return this.userRepository.count(where);
-  }
-
+  //==   Fetch All Users   ==//
+  //@access => protected => @admin
   @get('/users')
   @response(200, {
     description: 'Array of User model instances',
@@ -134,8 +46,18 @@ export class UserController {
       },
     },
   })
+  @authenticate('jwt')
   async find(@param.filter(User) filter?: Filter<User>): Promise<User[]> {
     return this.userRepository.find(filter);
+  }
+
+  @get('/users/count')
+  @response(200, {
+    description: 'User model count',
+    content: {'application/json': {schema: CountSchema}},
+  })
+  async count(@param.where(User) where?: Where<User>): Promise<Count> {
+    return this.userRepository.count(where);
   }
 
   @patch('/users')

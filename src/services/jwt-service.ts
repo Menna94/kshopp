@@ -44,4 +44,8 @@ export class JWTService {
     }
     return userProfile;
   }
+
+  // generateCookie(){
+  //   const cookie =
+  // }
 }
